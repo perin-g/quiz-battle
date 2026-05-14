@@ -1,0 +1,149 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+<!--
+  modelVersion: Diz qual versão do "Formato POM" vamos usar
+  Para o maven 2 e 3, sempre 4.0.0.
+-->
+  <modelVersion>4.0.0</modelVersion>
+
+<!--
+  "POM" = Project Object Model
+  Este é o arquivo onde o Maven lê tudo que precisa
+  Saber sobre o projeto:
+    - Quem é este projeto (nome, versão, grupo)
+    - Quais bibliotecas externas ele precisa baixar
+    - Com qual versão do JAVA compilar
+    - Quais plugins ajudam na execução
+  Sem estas informações, o maven nao faz nada, ou seja
+  o projeto não existe.
+-->
+
+<!--
+  Aqui abaixo estão as coordenadas do projeto
+  Estes 3 valores juntos identificam unicamente o projeto
+
+  groupId = "Quem" publica o app (a empresa)
+            Convenção: domínio ao contrário
+  artifactId = O nome deste projeto específico
+  version = Versão atual deste sistema
+            quando tem SNAPSHOT significa que é uma versão "Dev"
+            Aí quando se publica oficialmente, tira o SNAPSHOT
+-->
+  <groupId>br.cesul</groupId>
+  <artifactId>quiz-battle</artifactId>
+  <version>1.0-SNAPSHOT</version>
+
+  <packaging>jar</packaging>
+
+  <name>quiz-battle</name>
+  <url>http://maven.apache.org</url>
+
+<!--
+  Properties são variáveis dentro do POM. Serve para evitar
+  repetições: Se um belo eu quiser atualizar o JFX de 21
+  para 22, mudo apenas em um lugar (aqui), e todas as
+  referências puxam sozinho
+-->
+  <properties>
+    <java.version>17</java.version>
+    <javafx.version>21</javafx.version>
+    <mongo.version>4.11.0</mongo.version>
+    <maven.compiler.source>17</maven.compiler.source>
+    <maven.compiler.target>17</maven.compiler.target>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  </properties>
+
+<!--
+  São as dependências / bibliotecas externas que o sistema
+  precisará usar;
+
+  Cada bloco <dependency> diz ao maven:
+    "Baixe essa biblioteca e deixe disponivel para usar
+    neste projeto"
+
+  Cada dependencia é um projeto Java que deve ser identificado
+  por groupId, artifactId e version, igual ao projeto atual
+
+  O maven procura no repositório central
+  https://repo.maven.apache.org/
+  e guarda uma cópia em um arquivo oculto do seu usuario
+  https://mvnrepository.com/
+-->
+  <dependencies>
+    <!--
+      javafx-controls: Tem os controles visuais do JavaFX:
+      Botões, textfield, tableview...
+    -->
+    <dependency>
+      <groupId>org.openjfx</groupId>
+      <artifactId>javafx-controls</artifactId>
+      <version>${javafx.version}</version>
+    </dependency>
+    <!--
+      javafx-graphics: é a camada mais baixa do JFX:
+      Stage, Scene, animações, manipulação de fontes
+    -->
+    <dependency>
+      <groupId>org.openjfx</groupId>
+      <artifactId>javafx-graphics</artifactId>
+      <version>${javafx.version}</version>
+    </dependency>
+
+    <!--
+      mongodb-driver-sync: Driver oficial do mongodb pra java
+      na versão síncrona (versão sincrona: a chamada feita
+      espera a resposta antes de continuar).
+      Ele nos da os objetos especificos do mongo,
+      métodos de conversão, classes apoio...
+    -->
+    <dependency>
+      <groupId>org.mongodb</groupId>
+      <artifactId>mongodb-driver-sync</artifactId>
+      <version>${mongo.version}</version>
+    </dependency>
+  </dependencies>
+
+<!--
+  Aqui dentro da build é onde ficam os plugins do Maven.
+  Plugins são workers que executam tarefas importantes
+  durante a build:
+  Compilar, Rodar, empacotar, gerar jar, testar..
+-->
+  <build>
+    <plugins>
+      <!--
+        javafx-maven-plugin: Este plugin adiciona
+        o comando "mvn javafx:run" que sobe a aplicação
+        sem precisar configurar nada manualmente
+       -->
+      <plugin>
+        <groupId>org.openjfx</groupId>
+        <artifactId>javafx-maven-plugin</artifactId>
+        <version>0.0.8</version>
+        <configuration>
+          <mainClass>br.cesul.ui.MainApp</mainClass>
+        </configuration>
+      </plugin>
+
+      <!--
+        maven-compiler-plugin: Responsável por compilar
+        os .java em .class.
+        Porque é importante? Um dev pode ter a JDK 17, 21,
+        24 ou 26 instalado, se fixarmos o target em 17, todos
+        geram o mesmo .class, que roda em qualquer jdk >17.
+        Sem essa configuração o maven usaria o default do
+        sistema de quem gerou
+      -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <source>17</source>
+          <target>17</target>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
+</project>
