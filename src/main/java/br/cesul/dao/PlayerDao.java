@@ -84,4 +84,10 @@ public class PlayerDao {
 
         );
     }
+
+    // DELETE - apaga tudo no 'zerar ranking'
+    // deleteManu(FILTROVAZIO) apaga tudo e é uma operação irreversível
+    public void deleteAll(){
+        col.deleteMany(new Document());
+    }
 }
