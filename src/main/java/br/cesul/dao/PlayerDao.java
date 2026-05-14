@@ -11,9 +11,17 @@ import br.cesul.util.MongoConfig;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Sorts;
 import org.bson.Document;
-
+import org.bson.types.ObjectId;
 import java.util.ArrayList;
 import java.util.List;
+
+// Esse é um import para auxiliar na COMPARAÇÃO de uma variável que veio do Java
+// com alguma variável de algum documento do MongDB. Util em Updates
+import static com.mongodb.client.model.Filters.eq;
+// Serve para auxiliar a incrementação de valores salvos em documentos do MongoDB
+import static com.mongodb.client.model.Updates.inc;
+// Serve para auxiliar a alteração de diferentes campos de documentos do MongoDB
+import static com.mongodb.client.model.Updates.combine;
 
 // Porque? Porque se amanha trocarmos o Mongo
 // pelo PostreSQL, só este arquivo muda, e a UI fica
@@ -59,6 +67,21 @@ public class PlayerDao {
         return list;
     }
 
-    // Implemente o metodo findByName(String nome) para buscar UM player pelo nome
+    // UPDATE - Somar pontos à pontuação e incrementar as partidas
+    // é uma operação 'fim de partida'. O MainApp vai chama-lo quando o jogador terminar o quiz
+    // passando a pontuação que ele fez
+    public void registrarPartida(String id, int pontosGanhos){
+        ObjectId oid = new ObjectId(id);
 
+        col.updateOne(
+                // 1 - Qual é o ID que estou procurando?
+                eq("_id", oid),
+                // 2 - O que quero atualizar?
+                combine(
+                        inc("pontuacaoTotal", pontosGanhos),
+                        inc("partidasJogadas", 1)
+                )
+
+        );
+    }
 }
