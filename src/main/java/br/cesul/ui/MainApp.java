@@ -1,9 +1,95 @@
 package br.cesul.ui;
 
-public class MainApp
-{
-    public static void main( String[] args )
-    {
-        System.out.println( "Hello World!" );
+// A MainApp é o ponto de entrada e interface do projeto
+// Só será executado ao dar run, o que estiver dentro do método 'main'
+
+
+// Arquitetura/fluxo lógica:
+// UI (MainApp) -> chama -> PlayerDao/QuestionDao -> usar o MongoConfig -> Conecta e manipula o banco de dados
+
+// Modularidade. A UI NUNCA acessa o MongoDB, nem define campos de entidades
+
+import br.cesul.dao.PlayerDao;
+import br.cesul.dao.QuestionDao;
+import br.cesul.model.Categoria;
+import br.cesul.model.Player;
+import br.cesul.model.Question;
+import br.cesul.util.MongoConfig;
+import javafx.application.Application;
+import javafx.collections.ObservableList;
+import javafx.scene.Scene;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.Tab;
+import javafx.scene.control.TabPane;
+import javafx.scene.control.TableView;
+import javafx.stage.Stage;
+
+import java.awt.*;
+import java.util.List;
+
+public class MainApp extends Application {
+    // Criação de objetos locais dos DAO's e regras de negócio
+    private final PlayerDao playerDao = new PlayerDao();
+    private final QuestionDao questionDao = new QuestionDao();
+    private static final int QTD_PERGUNTAS = 5;
+
+    // Criação de variáveis para controle do estado atual da partida
+    private Player jogadorAtual; // Quem está jogando agora
+    private List<Question> perguntasPartida;
+    private int indicePergunta; //0..3, para saber qual é a resposta certa
+    private int pontosPartida; // Quanto o jogador fez nesta rodada
+
+    // Variáveis de controle de UI, aqui colocamos variáveis para todos os campos visuais
+    // que terão alguma modificação no decorrer do runtime
+    // Label = componente gráfico para mostrar text oem tela
+    private Label lblEnunciado;
+    private Label lblFeedback;
+    private Label lblProgresso;
+    private Button[] btnsAlternativas;
+    private Button btnProxima;
+    private ComboBox<Player> cboPlayer;
+    private ComboBox<Categoria> cboCategoria;
+    // A table view fornece a estrutura da tabela.
+    // Nós precisamos forneceder uma lista com os dados para serem mostrados na tabela
+    // Se eu criar uma List<>, preciso atualizar o componente da tela
+    // para que os novos valores da lista apareçam
+    private TableView<Player> tabelaRanking;
+    // Se usarmos a ObservableList para popular a tabela, toda vez que a lista
+    // for alterada localmente, a tela refletira a mudança (auto refresh)
+    private ObservableList<Player> dadosRanking;
+
+    // 1° coisa: Método start() que é o ponto de entrada do JFX
+    // O objetivo do Stage é realizar a montagem do esqueleto da tela
+    // juntamente com os componentes que queremos e ao final dela
+    // pode incluir isso ao STAGE e dar stage.show();
+    // A partir desse momento, nada mais acontece a não ser que
+    // o usuário realize alguma ação.
+    @Override
+    public void start(Stage stage) throws Exception {
+        // Realizar operações que devem ser aplicadas toda vez que o APP rodar (regras de negócio)
+        MongoConfig.seedQuestionsIfEmpty();
+
+        // Montagem das abas
+        // Como utilizaremos 3 abas, faz sentido implementar o componente
+        // TabPane:. Cada aba, ao ser clicada, alterará o conteúdo da tela de acordo com a sua tab
+        TabPane tabs = new TabPane();
+        tabs.getTabs().addAll(
+                criarAbaJogar(),
+                criarAbaRankind(),
+                criarAbaNovoJogador()
+        );
+
+        // Configurado política para que não seja possível fechar uma tela
+        tabs.setTabClosingPolicy(TabPane.TabClosingPolicy.UNAVAILABLE);
+
+        Scene cena = new Scene(tabs, 640,480);
+        stage.setScene(cena);
+        stage.setTitle("Quiz Battle");
+
+        stage.show();
+    }
+
+    public static void main(String[] args ) {
+        launch(args);
     }
 }
