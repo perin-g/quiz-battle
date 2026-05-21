@@ -100,6 +100,15 @@ public class MainApp extends Application {
         cboPlayer = new ComboBox<>();
         cboPlayer.setPromptText("Selecione o jogador");
         recarregarComboJogadores();
+
+        // Combo de Categorias (enum.values() te retorna todos)
+        cboCategoria = new ComboBox<>(FXCollections.observableArrayList(Categoria.values()));
+        cboCategoria.setPromptText("Categoria");
+        cboCategoria.getSelectionModel().selectFirst(); // Seleciona o primeiro item da ComboBox
+
+        // Botão iniciar partida
+        javafx.scene.control.Button btnIniciar = new javafx.scene.control.Button("Iniciar partida");
+        btnIniciar.setOnAction(e -> iniciarPartida());
     }
 
     private void recarregarComboJogadores() {
@@ -122,6 +131,25 @@ public class MainApp extends Application {
             }
         }
 
+    }
+
+    private void iniciarPartida() {
+        jogadorAtual = cboPlayer.getValue();
+        if (jogadorAtual == null) {
+            lblEnunciado.setText("Selecione um jogador antes de começar!");
+            return;
+        }
+        Categoria cat = cboCategoria.getValue();
+        perguntasPartida = questionDao.sortearPartida(cat, QTD_PERGUNTAS);
+        if (perguntasPartida.isEmpty()) {
+            lblEnunciado.setText("Sem perguntas disponíveis para esta categoria");
+            return;
+        }
+
+        indicePergunta = 0;
+        pontosPartida = 0;
+        lblFeedback.setText("");
+        mostrarPerguntaAtual();
     }
 
     public static void main(String[] args ) {
