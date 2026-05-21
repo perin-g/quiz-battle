@@ -152,6 +152,16 @@ public class MainApp extends Application {
         mostrarPerguntaAtual();
     }
 
+    private void mostrarPerguntaAtual() {
+        Question q = perguntasPartida.get(indicePergunta);
+        lblProgresso.setText(
+                "Pergunta " + (indicePergunta + 1) + "/" + (perguntasPartida.size() + 1)
+                + "  |  " +  q.categoria().rotulo()
+                + "  *  " + q.dificuldade()
+                + "(" + q.dificuldade()
+        );
+    }
+
     public static void main(String[] args ) {
         launch(args);
     }
