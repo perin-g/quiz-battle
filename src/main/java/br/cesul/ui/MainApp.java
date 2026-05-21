@@ -16,6 +16,7 @@ import br.cesul.model.Player;
 import br.cesul.model.Question;
 import br.cesul.util.MongoConfig;
 import javafx.application.Application;
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.Scene;
 import javafx.scene.control.ComboBox;
@@ -24,6 +25,7 @@ import javafx.scene.control.TabPane;
 import javafx.scene.control.TableView;
 import javafx.stage.Stage;
 
+import javax.swing.*;
 import java.awt.*;
 import java.util.List;
 
@@ -82,11 +84,44 @@ public class MainApp extends Application {
         // Configurado política para que não seja possível fechar uma tela
         tabs.setTabClosingPolicy(TabPane.TabClosingPolicy.UNAVAILABLE);
 
-        Scene cena = new Scene(tabs, 640,480);
+        Scene cena = new Scene(tabs, 800,600);
         stage.setScene(cena);
         stage.setTitle("Quiz Battle");
 
         stage.show();
+    }
+
+    // Método para criar a aba JOGAR
+    // Fluxo> Escolher jogador + categoria -> clicar em iniciar -> responder as perguntas -> ver pontuação final
+    private Tab criarAbaJogar() {
+        // Primeiro declaramos os atributos que terão alteração, ou que precisamos acompanhar estado.
+
+        // Combo de jogadores existentes
+        cboPlayer = new ComboBox<>();
+        cboPlayer.setPromptText("Selecione o jogador");
+        recarregarComboJogadores();
+    }
+
+    private void recarregarComboJogadores() {
+        Player antes = cboPlayer == null ? null : cboPlayer.getValue();
+        List<Player> todos = playerDao.findAllOrderedByScore();
+
+        if (cboPlayer != null) {
+            cboPlayer.setItems(FXCollections.observableArrayList(todos)); // Cast de List para ObservableList
+
+            if (antes != null) {
+                // Tentar re-selecionar o mesmo jogador (Caso não tenha sido apagadao)
+                // A stream possibilita que façamos operações com for's aninhados a partir de uma lista inicial
+                // Por que precisamos disso?
+                // Porque logo a seguir, eu preciso aplicar um filtro em todos os items da lista
+                // Depois do filter, só se passam para a próxima linha os items que dada regra do filter, retornem true
+                // Depois, com o findFirst, separamos apenas o primeiro item da lista resultante do filtro
+                // E por último se o dado que chegou até aqui não for null, aplicamos um método em um componente
+                // passando esse valor de forma implícita.
+                todos.stream().filter(player -> player.id().equals(antes.id())).findFirst().ifPresent(cboPlayer::setValue);
+            }
+        }
+
     }
 
     public static void main(String[] args ) {
