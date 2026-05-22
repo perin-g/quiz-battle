@@ -31,4 +31,15 @@ public enum Dificuldade {
         this.pontos = pontos;
     }
 
+    public int getPontos() {
+        return pontos;
+    }
+
+    public String rotulo() {
+        return switch (this) {
+            case FACIL -> "Fácil";
+            case MEDIO -> "Médio";
+            case DIFICIL -> "Difícil";
+        };
+    }
 }

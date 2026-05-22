@@ -157,7 +157,7 @@ public class MainApp extends Application {
         lblProgresso.setText(
                 "Pergunta " + (indicePergunta + 1) + "/" + (perguntasPartida.size() + 1)
                 + "  |  " +  q.categoria().rotulo()
-                + "  *  " + q.dificuldade()
+                + "  *  " + q.dificuldade().rotulo()
                 + "(" + q.dificuldade()
         );
     }
