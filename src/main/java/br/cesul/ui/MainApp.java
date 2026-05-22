@@ -47,8 +47,8 @@ public class MainApp extends Application {
     private Label lblEnunciado;
     private Label lblFeedback;
     private Label lblProgresso;
-    private Button[] btnsAlternativas;
-    private Button btnProxima;
+    private javafx.scene.control.Button[] btnsAlternativas;
+    private javafx.scene.control.Button btnProxima;
     private ComboBox<Player> cboPlayer;
     private ComboBox<Categoria> cboCategoria;
     // A table view fornece a estrutura da tabela.
@@ -158,8 +158,22 @@ public class MainApp extends Application {
                 "Pergunta " + (indicePergunta + 1) + "/" + (perguntasPartida.size() + 1)
                 + "  |  " +  q.categoria().rotulo()
                 + "  *  " + q.dificuldade().rotulo()
-                + "(" + q.dificuldade()
+                + "(" + q.dificuldade().getPontos() + " pts)"
         );
+
+        lblEnunciado.setText((q.enunciado()));
+
+        for (int i = 0; i < btnsAlternativas.length; i++) {
+            javafx.scene.control.Button b = btnsAlternativas[i];
+            if (i < q.alternativas().size()) {
+                b.setText((char)('A' + i) + ") " + q.alternativas().get(i));
+            } else {
+                b.setText("");
+                b.setDisable(true);
+                b.setStyle(""); // Limpar a cor anterior
+            }
+        }
+        btnProxima.setDisable(true);
     }
 
     public static void main(String[] args ) {
