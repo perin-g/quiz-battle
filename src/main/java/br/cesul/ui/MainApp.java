@@ -18,11 +18,17 @@ import br.cesul.util.MongoConfig;
 import javafx.application.Application;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TableView;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 import javax.swing.*;
@@ -44,9 +50,9 @@ public class MainApp extends Application {
     // Variáveis de controle de UI, aqui colocamos variáveis para todos os campos visuais
     // que terão alguma modificação no decorrer do runtime
     // Label = componente gráfico para mostrar text oem tela
-    private Label lblEnunciado;
-    private Label lblFeedback;
-    private Label lblProgresso;
+    private javafx.scene.control.Label lblEnunciado;
+    private javafx.scene.control.Label lblFeedback;
+    private javafx.scene.control.Label lblProgresso;
     private javafx.scene.control.Button[] btnsAlternativas;
     private javafx.scene.control.Button btnProxima;
     private ComboBox<Player> cboPlayer;
@@ -109,6 +115,51 @@ public class MainApp extends Application {
         // Botão iniciar partida
         javafx.scene.control.Button btnIniciar = new javafx.scene.control.Button("Iniciar partida");
         btnIniciar.setOnAction(e -> iniciarPartida());
+
+        // "Caixa" horizontal que armazena componentes lado a lado na linha
+        HBox topo = new HBox(
+                // Primeiro parâmetro é o espaçamento entre itens da HBox
+                8,
+                new javafx.scene.control.Label("Jogador: "), cboPlayer,
+                new javafx.scene.control.Label("Categoria: "), cboCategoria,
+                btnIniciar
+        );
+
+        topo.setAlignment(Pos.CENTER_LEFT);
+        topo.setPadding(new Insets(10));
+
+        // Área da pergunta
+        lblProgresso = new javafx.scene.control.Label("-");
+        lblProgresso.setStyle("-fx-text-fill:#666");
+
+        lblEnunciado = new Label("Clique em 'Inicia partida' para começar");
+        lblEnunciado.setWrapText(true);
+        lblEnunciado.setStyle("-fx-font-size:16; -fx-font-weight:bold;");
+
+        // Criando 4 instâncias de botão
+        btnsAlternativas = new Button[4];
+        VBox boxAlternativas = new VBox(6);
+
+        for (int i = 0; i < 4; i++) {
+            final int idx = i;
+            Button b = new Button();
+            // Define que o botão ocupa toda a largura disponível na tela
+            b.setMaxWidth(Double.MAX_VALUE);
+            b.setDisable(true);
+            b.setOnAction(e -> responder(idx));
+            btnsAlternativas[i] = b;
+            boxAlternativas.getChildren().add(b);
+        }
+
+        lblFeedback = new Label();
+        lblFeedback.setStyle("-fx-font-wight:bold;");
+
+        // Criar uma nova instância de Button
+        // Setar que está desabilitado
+        // Setar o onAction para um metodo chamado avancarPergunta()
+        btnProxima = new Button("Próxima");
+        btnProxima.setDisable(true);
+        btnProxima.setOnAction(avancarPergunta());
     }
 
     private void recarregarComboJogadores() {
