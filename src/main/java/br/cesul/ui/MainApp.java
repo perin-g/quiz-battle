@@ -159,7 +159,27 @@ public class MainApp extends Application {
         // Setar o onAction para um metodo chamado avancarPergunta()
         btnProxima = new Button("Próxima");
         btnProxima.setDisable(true);
-        btnProxima.setOnAction(avancarPergunta());
+        btnProxima.setOnAction(e -> avancarPergunta());
+
+        HBox boxFeedback = new HBox(
+                10,
+                lblFeedback,
+                btnProxima
+        );
+
+        boxFeedback.setAlignment(Pos.CENTER_LEFT);
+
+        VBox conteudo = new VBox(
+                12,
+                topo,
+                lblProgresso,
+                lblEnunciado,
+                boxAlternativas,
+                boxFeedback
+        );
+
+        Tab tab = new Tab("Jogar", conteudo);
+        return tab;
     }
 
     // Será chamado por qualquer botão de alternativa que o usuário clicar
@@ -181,6 +201,19 @@ public class MainApp extends Application {
             btnsAlternativas[q.indiceCorreto()].setStyle("-fx-background-color:#ACD8A7;");
         }
         btnProxima.setDisable(false);
+    }
+
+    // Se o jogo tiver terminado, ou seja, o perguntasPartida.size() for <= indicePergunta
+    // finalize a partida (chama o método)
+    // Se ainda tiverem perguntas para serem mostradas, came o método mostrarPerguntaAtual()
+    // incrementando o indicePergunta
+    private void avancarPergunta() {
+        indicePergunta++;
+        if (perguntasPartida.size() <= indicePergunta) {
+//            finalizarPartida();
+        } else {
+            mostrarPerguntaAtual();
+        }
     }
 
     private void recarregarComboJogadores() {
