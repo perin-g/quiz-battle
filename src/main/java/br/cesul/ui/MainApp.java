@@ -178,6 +178,8 @@ public class MainApp extends Application {
                 boxFeedback
         );
 
+        conteudo.setPadding(new Insets(10));
+
         Tab tab = new Tab("Jogar", conteudo);
         return tab;
     }
@@ -210,10 +212,34 @@ public class MainApp extends Application {
     private void avancarPergunta() {
         indicePergunta++;
         if (perguntasPartida.size() <= indicePergunta) {
-//            finalizarPartida();
+            finalizarPartida();
         } else {
             mostrarPerguntaAtual();
         }
+
+        lblFeedback.setStyle("");
+    }
+
+    // 1 - Salvar os pontos no MongoDB;
+    // 2 - Mostrar quantos pontos fez na tela;
+    // 3 - Limpar a tela para a próxima partida;
+    private void finalizarPartida(){
+        playerDao.registrarPartida(jogadorAtual.id(), pontosPartida);
+
+        lblProgresso.setText("Partida encerrada");
+        lblEnunciado.setText(jogadorAtual.nome() + " você fez + " + pontosPartida + " Pontos!");
+
+        for(Button b : btnsAlternativas) {
+            b.setText("");
+            b.setDisable(true);
+            b.setStyle("");
+        }
+
+        lblFeedback.setText("Vá para a aba ranking para ver sua posição");
+        lblFeedback.setStyle("-fx-text-fill:#333");
+
+        // Atualiza listas locais
+        recarregarComboJogadores();
     }
 
     private void recarregarComboJogadores() {
