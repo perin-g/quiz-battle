@@ -82,9 +82,9 @@ public class MainApp extends Application {
         // TabPane:. Cada aba, ao ser clicada, alterará o conteúdo da tela de acordo com a sua tab
         TabPane tabs = new TabPane();
         tabs.getTabs().addAll(
-                criarAbaJogar(),
-                criarAbaRankind(),
-                criarAbaNovoJogador()
+                criarAbaJogar()
+//                criarAbaRankind(),
+//                criarAbaNovoJogador()
         );
 
         // Configurado política para que não seja possível fechar uma tela
@@ -160,6 +160,27 @@ public class MainApp extends Application {
         btnProxima = new Button("Próxima");
         btnProxima.setDisable(true);
         btnProxima.setOnAction(avancarPergunta());
+    }
+
+    // Será chamado por qualquer botão de alternativa que o usuário clicar
+    // Marcar certo/errado, atualizar os pontos e liberar o botão "prox"
+    private void responder(int indiceEscolhido) {
+        //Desabilitar todos os botões para impedir re-clique
+        for (Button b : btnsAlternativas) b.setDisable(true);
+
+        Question q = perguntasPartida.get(indicePergunta);
+        if (q.acertou(indiceEscolhido)){
+            pontosPartida += q.dificuldade().getPontos();
+            lblFeedback.setStyle("-fx-text-fill:#00FF00; -fx-fon-wight:bold;");
+            lblFeedback.setText("V Acertou! + "+ q.dificuldade().getPontos() + " pts");
+            btnsAlternativas[indiceEscolhido].setStyle("-fx-background-color:#ACD8A7;");
+        } else {
+            lblFeedback.setStyle("-fx-text-fill:#FF0000; -fx-fon-wight:bold;");
+            lblFeedback.setText("X Errou!. Resposta:  "+ q.textoCorreto());
+            btnsAlternativas[indiceEscolhido].setStyle("-fx-background-color:#D8A7A7;");
+            btnsAlternativas[q.indiceCorreto()].setStyle("-fx-background-color:#ACD8A7;");
+        }
+        btnProxima.setDisable(false);
     }
 
     private void recarregarComboJogadores() {
