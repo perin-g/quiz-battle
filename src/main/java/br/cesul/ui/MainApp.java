@@ -27,12 +27,12 @@ import javafx.scene.control.Label;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.text.Document;
 import java.util.List;
 
 public class MainApp extends Application {
@@ -50,11 +50,11 @@ public class MainApp extends Application {
     // Variáveis de controle de UI, aqui colocamos variáveis para todos os campos visuais
     // que terão alguma modificação no decorrer do runtime
     // Label = componente gráfico para mostrar text oem tela
-    private javafx.scene.control.Label lblEnunciado;
-    private javafx.scene.control.Label lblFeedback;
-    private javafx.scene.control.Label lblProgresso;
-    private javafx.scene.control.Button[] btnsAlternativas;
-    private javafx.scene.control.Button btnProxima;
+    private Label lblEnunciado;
+    private Label lblFeedback;
+    private Label lblProgresso;
+    private Button[] btnsAlternativas;
+    private Button btnProxima;
     private ComboBox<Player> cboPlayer;
     private ComboBox<Categoria> cboCategoria;
     // A table view fornece a estrutura da tabela.
@@ -82,9 +82,9 @@ public class MainApp extends Application {
         // TabPane:. Cada aba, ao ser clicada, alterará o conteúdo da tela de acordo com a sua tab
         TabPane tabs = new TabPane();
         tabs.getTabs().addAll(
-                criarAbaJogar()
+                criarAbaJogar(),
 //                criarAbaRankind(),
-//                criarAbaNovoJogador()
+                criarAbaNovoJogador()
         );
 
         // Configurado política para que não seja possível fechar uma tela
@@ -113,15 +113,15 @@ public class MainApp extends Application {
         cboCategoria.getSelectionModel().selectFirst(); // Seleciona o primeiro item da ComboBox
 
         // Botão iniciar partida
-        javafx.scene.control.Button btnIniciar = new javafx.scene.control.Button("Iniciar partida");
+        Button btnIniciar = new Button("Iniciar partida");
         btnIniciar.setOnAction(e -> iniciarPartida());
 
         // "Caixa" horizontal que armazena componentes lado a lado na linha
         HBox topo = new HBox(
                 // Primeiro parâmetro é o espaçamento entre itens da HBox
                 8,
-                new javafx.scene.control.Label("Jogador: "), cboPlayer,
-                new javafx.scene.control.Label("Categoria: "), cboCategoria,
+                new Label("Jogador: "), cboPlayer,
+                new Label("Categoria: "), cboCategoria,
                 btnIniciar
         );
 
@@ -129,7 +129,7 @@ public class MainApp extends Application {
         topo.setPadding(new Insets(10));
 
         // Área da pergunta
-        lblProgresso = new javafx.scene.control.Label("-");
+        lblProgresso = new Label("-");
         lblProgresso.setStyle("-fx-text-fill:#666");
 
         lblEnunciado = new Label("Clique em 'Inicia partida' para começar");
@@ -182,6 +182,45 @@ public class MainApp extends Application {
 
         Tab tab = new Tab("Jogar", conteudo);
         return tab;
+    }
+
+    private Tab criarAbaNovoJogador() {
+        TextField txtNome = new TextField();
+        txtNome.setPromptText("Digite o nome");
+        txtNome.setMaxHeight(300);
+
+        Label lblStatus = new Label();
+        lblStatus.setStyle("-fx-text-fill:#0B6623");
+
+        Button btnCadastrar = new Button();
+        btnCadastrar.setText("Cadastrar");
+        btnCadastrar.setOnAction(e -> {
+            String nome = txtNome.getText().trim();
+            if (nome.isEmpty()) {
+                lblStatus.setStyle("-fx-text-fill:#C00");
+                lblStatus.setText("Digite um nome válido");
+                return;
+            }
+
+            playerDao.insert(nome);
+            txtNome.clear();
+            lblStatus.setStyle("-fx-text-fill:#0B6623");
+            lblStatus.setText("Jogador " + nome + " cadastrado!");
+            recarregarComboJogadores();
+        });
+
+        VBox raiz = new VBox(
+                10,
+                new Label("Cadastrar novo jogador"),
+                txtNome,
+                btnCadastrar,
+                lblStatus
+        );
+
+        raiz.setPadding(new Insets(20));
+
+        Tab tabNovoJogador = new Tab("Novo Jogador", raiz);
+        return tabNovoJogador;
     }
 
     // Será chamado por qualquer botão de alternativa que o usuário clicar
@@ -295,12 +334,12 @@ public class MainApp extends Application {
         lblEnunciado.setText((q.enunciado()));
 
         for (int i = 0; i < btnsAlternativas.length; i++) {
-            javafx.scene.control.Button b = btnsAlternativas[i];
+            Button b = btnsAlternativas[i];
             if (i < q.alternativas().size()) {
                 b.setText((char)('A' + i) + ") " + q.alternativas().get(i));
             } else {
                 b.setText("");
-                b.setDisable(true);
+                b.setDisable(false);
                 b.setStyle(""); // Limpar a cor anterior
             }
         }
