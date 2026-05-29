@@ -16,18 +16,13 @@ import br.cesul.model.Player;
 import br.cesul.model.Question;
 import br.cesul.util.MongoConfig;
 import javafx.application.Application;
+import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.Tab;
-import javafx.scene.control.TabPane;
-import javafx.scene.control.TableView;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
@@ -83,7 +78,7 @@ public class MainApp extends Application {
         TabPane tabs = new TabPane();
         tabs.getTabs().addAll(
                 criarAbaJogar(),
-//                criarAbaRankind(),
+                criarAbaRankind(),
                 criarAbaNovoJogador()
         );
 
@@ -95,6 +90,57 @@ public class MainApp extends Application {
         stage.setTitle("Quiz Battle");
 
         stage.show();
+    }
+
+    // Mostrar os jogadores ordenados pela pontuação
+    // Os dados são recarregados toda vez que a aba é aberta
+    private Tab criarAbaRankind() {
+        dadosRanking = FXCollections.observableArrayList();
+
+        tabelaRanking = new TableView<>(dadosRanking);
+        tabelaRanking.setPlaceholder(new Label("Nenhum jogador salvo"));
+        tabelaRanking.getColumns().addAll(
+                coluna("Nome", "nome", 180),
+                coluna("Pontuação", "pontuacaoTotal", 90),
+                coluna("Partidas", "partidasJogadas", 90),
+                coluna("Médias/partida", "media", 110)
+        );
+
+        Button btnAtualizar = new Button("Atualizar");
+
+
+        Button btnZerarTudo = new Button("Zerar Tudo");
+        btnZerarTudo.setOnAction(e -> {
+            for (Player p : dadosRanking) {
+                playerDao.deleteAll();
+            }
+        });
+
+        HBox boxBotoes = new HBox(
+                12,
+                btnAtualizar,
+                btnZerarTudo
+        );
+
+
+    }
+
+    private TableColumn<Player, String> coluna(String titulo, String campo, int largura) {
+        TableColumn<Player, String> c = new TableColumn<>(titulo);
+        c.setMinWidth(largura);
+
+        c.setCellValueFactory(cell -> {
+            Player p = cell.getValue();
+            return switch (campo) {
+                case "nome" -> new ReadOnlyStringWrapper(p.nome());
+                case "pontuacaoTotal" -> new ReadOnlyStringWrapper(String.valueOf(p.pontuacaoTotal()));
+                case "partidasJogadas" -> new ReadOnlyStringWrapper(String.valueOf(p.partidasJogadas()));
+                case "media" -> new ReadOnlyStringWrapper(String.format("%.1f", p.mediaPorPartida()));
+                default -> new ReadOnlyStringWrapper("?");
+            };
+        });
+
+        return c;
     }
 
     // Método para criar a aba JOGAR
